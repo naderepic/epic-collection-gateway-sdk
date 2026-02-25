@@ -1,0 +1,29 @@
+{
+  "name": "epic-collection-gateway-sdk",
+  "version": "1.0.3",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "peerDependencies": {},
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.0.2",
+    "vite": "^4.4.0",
+    "vite-plugin-dts": "^3.5.3"
+  }
+}
