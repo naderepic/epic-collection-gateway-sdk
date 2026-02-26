@@ -94,6 +94,7 @@ export async function startEpicCollectionPayment(options: StartEpicCollectionPay
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...EPIC_HEADERS },
     body: JSON.stringify({
+      environment,
       clientId,
       clientSecret,
       sessionId,
