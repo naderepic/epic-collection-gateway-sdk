@@ -1,21 +1,11 @@
 import { setConfig, epicConfig } from './epicConfig';
+import { EPIC_HEADERS } from './constants';
 
 export type EpicPayEnvironment = 'sandbox' | 'production';
 
-export interface EpicPayInitOptions {
-  merchantId?: string;
-  environment?: EpicPayEnvironment;
-  onEvent?: (event: { type: string; payload?: any; timestamp: number }) => void;
-  apiBase?: string;
-  headers?: Record<string, string>;
-  paymentMethodsUrl?: string;
-  theme?: Record<string, string>;
-  redirectUrl?: string;
-  clientId?: string;
-  clientSecret?: string;
-}
 
 export interface RedirectToPortalParams {
+  environment?: EpicPayEnvironment;
   amount: number;
   sessionId: string;
   additionalParams?: Record<string, string | number | boolean>;
@@ -41,7 +31,7 @@ export interface StartEpicCollectionPaymentOptions {
 }
 
 export function redirectToPortal(params: RedirectToPortalParams) {
-  const { amount, sessionId, additionalParams, redirectUrl } = params;
+  const { environment, amount, sessionId, additionalParams, redirectUrl } = params;
   const portal = epicConfig.redirectUrl || epicConfig.apiBase;
   if (!portal) {
     throw new Error('No redirectUrl configured. Call initEpicPay({ redirectUrl: "https://..." }).');
@@ -54,6 +44,7 @@ export function redirectToPortal(params: RedirectToPortalParams) {
   if (redirectUrl) qs.redirectUrl = String(redirectUrl);
   if (epicConfig.clientId) qs.clientId = epicConfig.clientId;
   if (epicConfig.clientSecret) qs.clientSecret = epicConfig.clientSecret;
+  if (environment) qs.environment = String(environment);
   if (additionalParams) {
     Object.keys(additionalParams).forEach((k) => {
       qs[k] = String((additionalParams as any)[k]);
@@ -101,7 +92,7 @@ export async function startEpicCollectionPayment(options: StartEpicCollectionPay
   const authUrl = (base.endsWith('/') ? base.slice(0, -1) : base) + '/web-checkout/auth';
   const authRes = await fetch(authUrl, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'grabbersbeware': 'getthehellout989898' },
+    headers: { 'Content-Type': 'application/json', ...EPIC_HEADERS },
     body: JSON.stringify({
       clientId,
       clientSecret,
@@ -134,27 +125,4 @@ export async function startEpicCollectionPayment(options: StartEpicCollectionPay
   });
 }
 
-export function parsePaymentResponseFromUrl(raw?: string) {
-  const search = raw ?? (typeof window !== 'undefined' ? (window.location.search || window.location.hash) : '');
-  const q = search.startsWith('?') || search.startsWith('#') ? search.substring(1) : search;
-  const params = new URLSearchParams(q);
-  const out: Record<string, string> = {};
-  params.forEach((v, k) => {
-    out[k] = v;
-  });
-  try { console.log('[EpicPay] parsePaymentResponseFromUrl', out); } catch { }
-  return out;
-}
 
-export function initEpicPay(options: EpicPayInitOptions = {}) {
-  setConfig({
-    environment: options.environment ?? 'sandbox',
-    apiBase: options.apiBase,
-    headers: options.headers,
-    onEvent: options.onEvent,
-    redirectUrl: options.redirectUrl,
-    clientId: options.clientId,
-    clientSecret: options.clientSecret,
-  });
-  try { console.log('[EpicPay] initEpicPay', { environment: options.environment ?? 'sandbox', redirectUrl: options.redirectUrl, clientId: options.clientId, clientSecret: options.clientSecret }); } catch { }
-}
