@@ -119,6 +119,7 @@ export async function startEpicCollectionPayment(options: StartEpicCollectionPay
   }
 
   return redirectToPortal({
+    environment,
     amount,
     sessionId,
     additionalParams,
